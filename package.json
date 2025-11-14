@@ -4,6 +4,7 @@
 	"description": "",
 	"scripts": {
 		"prepare": "husky",
+		"start": "tsx ./src/main.ts",
 		"lint-staged": "lint-staged"
 	},
 	"repository": {
@@ -25,5 +26,8 @@
 		"lint-staged": "16.2.6",
 		"tsx": "4.20.6",
 		"typescript": "5.9.3"
+	},
+	"dependencies": {
+		"dotenv": "17.2.3"
 	}
 }
