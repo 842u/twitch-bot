@@ -16,6 +16,7 @@ socket.on("open", () => {
 	socket.send(`PASS oauth:${TWITCH_TOKEN}`);
 	socket.send(`NICK ${TWITCH_USER}`);
 	socket.send(`JOIN #${TWITCH_CHANNEL}`);
+	socket.send(`CAP REQ :twitch.tv/membership twitch.tv/tags twitch.tv/commands`);
 
 	console.log("Connected.");
 });
