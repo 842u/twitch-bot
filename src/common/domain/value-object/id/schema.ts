@@ -1,10 +1,6 @@
 import { z } from "zod";
 import { ZodValidator } from "@/common/infrastructure/validator/zod.js";
 
-z.config({
-	jitless: true,
-});
-
 const ID_REQUIRED_MESSAGE = "ID is required.";
 const ID_TYPE_MESSAGE = "ID must be a UUID.";
 
