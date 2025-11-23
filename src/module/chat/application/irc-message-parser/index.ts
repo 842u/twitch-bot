@@ -10,9 +10,9 @@ const TAGS_SYMBOL = "@";
 const SOURCE_SYMBOL = ":";
 const TERMINATOR_SYMBOL = "\r\n";
 
-type IrcMessageTag = Record<string, string>;
+export type IrcMessageTags = Map<string, string>;
 
-type IrcMessageSource =
+export type IrcMessageSource =
 	| {
 			origin: "client";
 			nickname: string;
@@ -21,8 +21,8 @@ type IrcMessageSource =
 	  }
 	| { origin: "server"; serverName: string };
 
-type IrcMessage = {
-	tags?: IrcMessageTag[];
+export type IrcMessage = {
+	tags?: IrcMessageTags;
 	source?: IrcMessageSource;
 	command: string;
 	parameters?: string[];
@@ -79,9 +79,11 @@ export class IrcMessageParser {
 		const tagsSection = data.slice(this.cursorIndex + 1, spaceIndex);
 		this.cursorIndex = spaceIndex;
 
-		const tags = tagsSection.split(";").map((tag) => {
-			const [key, value = ""] = tag.split("=");
-			return { [key]: this.unescapeTagValue(value) };
+		const tags: Map<string, string> = new Map();
+
+		tagsSection.split(";").forEach((tagString) => {
+			const [key, value = ""] = tagString.split("=");
+			tags.set(key, this.unescapeTagValue(value));
 		});
 
 		return Result.ok(tags);
