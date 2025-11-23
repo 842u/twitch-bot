@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { DefaultWebScoketClient } from "@/common/infrastructure/websocket-client/index.js";
 import { IrcMessageParser } from "@/module/chat/application/irc-message-parser/index.js";
+import { IrcMessageSerializer } from "@/module/chat/application/irc-message-serializer/index.js";
 
 // biome-ignore-start lint/style/noNonNullAssertion: .env is set
 const TWITCH_WEBSOCKET_URL = process.env.TWITCH_WEBSOCKET_URL!;
@@ -11,6 +12,7 @@ const TWITCH_CHANNEL = "jaskol95";
 
 const socket = new DefaultWebScoketClient(TWITCH_WEBSOCKET_URL);
 const parser = new IrcMessageParser();
+const serializer = new IrcMessageSerializer();
 
 socket.on("open", () => {
 	console.log("Connecting...");
@@ -57,10 +59,28 @@ socket.on("message", (event) => {
 			return;
 		}
 
+		const { data } = messageResult;
+
 		console.log(messageResult.data.tags);
 		console.log(messageResult.data.source);
 		console.log(messageResult.data.command);
 		console.log(messageResult.data.parameters);
+
+		if (data.command === "PING") {
+			console.log("\x1b[33m%s\x1b[0m", `\r\n RESPONDED WITH PONG ${data.parameters} \r\n`);
+
+			const serializeResult = serializer.serialize({
+				command: "PONG",
+				parameters: data.parameters || [],
+			});
+
+			if (!serializeResult.success) {
+				console.log(serializeResult.error);
+				return;
+			}
+
+			socket.send(serializeResult.data);
+		}
 	});
 });
 
