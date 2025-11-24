@@ -4,29 +4,13 @@
  */
 
 import { Result } from "@/common/application/result/index.js";
-
-const IRC_SEPARATOR_SYMBOL = " ";
-const IRC_TAGS_SYMBOL = "@";
-const IRC_SOURCE_SYMBOL = ":";
-const IRC_TERMINATOR_SYMBOL = "\r\n";
-
-export type IrcTags = Map<string, string>;
-
-export type IrcSource =
-	| {
-			origin: "client";
-			nickname: string;
-			user: string;
-			host: string;
-	  }
-	| { origin: "server"; serverName: string };
-
-export type IrcMessage = {
-	tags?: IrcTags;
-	source?: IrcSource;
-	command: string;
-	parameters?: string[];
-};
+import {
+	IRC_SEPARATOR_SYMBOL,
+	IRC_SOURCE_SYMBOL,
+	IRC_TAGS_SYMBOL,
+	IRC_TERMINATOR_SYMBOL,
+	type IrcMessage,
+} from "@/module/chat/application/irc/types.js";
 
 class IrcParserError extends Error {
 	constructor(message: string) {

@@ -4,7 +4,15 @@
  */
 
 import { Result } from "@/common/application/result/index.js";
-import type { IrcMessage, IrcSource, IrcTags } from "@/module/chat/application/irc-parser/index.js";
+import {
+	IRC_SEPARATOR_SYMBOL,
+	IRC_SOURCE_SYMBOL,
+	IRC_TAGS_SYMBOL,
+	IRC_TERMINATOR_SYMBOL,
+	type IrcMessage,
+	type IrcSource,
+	type IrcTags,
+} from "@/module/chat/application/irc/types.js";
 
 class IrcSerializerError extends Error {
 	constructor(message: string) {
@@ -30,7 +38,7 @@ export class IrcSerializer {
 		if (!parametersResult.success) return Result.fail(parametersResult.error);
 
 		const IrcMessageString =
-			`${tagsResult.data} ${sourceResult.data} ${commandResult.data} ${parametersResult}\r\n`.trim();
+			`${tagsResult.data}${IRC_SEPARATOR_SYMBOL}${sourceResult.data}${IRC_SEPARATOR_SYMBOL}${commandResult.data}${IRC_SEPARATOR_SYMBOL}${parametersResult}${IRC_TERMINATOR_SYMBOL}`.trim();
 
 		return Result.ok(IrcMessageString);
 	}
@@ -39,7 +47,7 @@ export class IrcSerializer {
 		// https://modern.ircdocs.horse/#tags
 		if (!tags || !tags.size) return Result.ok("");
 
-		let tagsSection = "@";
+		let tagsSection = IRC_TAGS_SYMBOL;
 
 		tags.forEach((value, key) => {
 			const tagString = `${key}=${this.escapeTagValue(value)};`;
@@ -62,7 +70,7 @@ export class IrcSerializer {
 	private serializeSource(source?: IrcSource) {
 		// https://modern.ircdocs.horse/#source
 		if (!source || source.origin === "client") return Result.ok("");
-		return Result.ok(`:${source.serverName}`);
+		return Result.ok(`${IRC_SOURCE_SYMBOL}${source.serverName}`);
 	}
 
 	private serializeCommand(command: string) {
@@ -86,7 +94,7 @@ export class IrcSerializer {
 		 */
 		for (let i = 0; i < parameters.length - 1; i++) {
 			const parameter = parameters[i];
-			if (parameter.includes(" ")) {
+			if (parameter.includes(IRC_SEPARATOR_SYMBOL)) {
 				return Result.fail(
 					new IrcSerializerError(
 						`Parameter at index ${i} contains spaces. Only the last parameter can contain spaces.`,

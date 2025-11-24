@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { DefaultWebScoketClient } from "@/common/infrastructure/websocket-client/index.js";
-import { IrcParser } from "@/module/chat/application/irc-parser/index.js";
-import { IrcSerializer } from "@/module/chat/application/irc-serializer/index.js";
+import { IrcParser } from "@/module/chat/application/irc/parser/index.js";
+import { IrcSerializer } from "@/module/chat/application/irc/serializer/index.js";
 
 // biome-ignore-start lint/style/noNonNullAssertion: .env is set
 const TWITCH_WEBSOCKET_URL = process.env.TWITCH_WEBSOCKET_URL!;
