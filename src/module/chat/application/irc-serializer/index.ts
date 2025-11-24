@@ -4,20 +4,16 @@
  */
 
 import { Result } from "@/common/application/result/index.js";
-import type {
-	IrcMessage,
-	IrcMessageSource,
-	IrcMessageTags,
-} from "@/module/chat/application/irc-message-parser/index.js";
+import type { IrcMessage, IrcSource, IrcTags } from "@/module/chat/application/irc-parser/index.js";
 
-class IrcMessageSerializerError extends Error {
+class IrcSerializerError extends Error {
 	constructor(message: string) {
 		super(message);
-		this.name = "IrcMessageSerializerError";
+		this.name = "IrcSerializerError";
 	}
 }
 
-export class IrcMessageSerializer {
+export class IrcSerializer {
 	serialize(message: IrcMessage) {
 		const { tags, source, command, parameters } = message;
 
@@ -39,7 +35,7 @@ export class IrcMessageSerializer {
 		return Result.ok(IrcMessageString);
 	}
 
-	private serializeTags(tags?: IrcMessageTags) {
+	private serializeTags(tags?: IrcTags) {
 		// https://modern.ircdocs.horse/#tags
 		if (!tags || !tags.size) return Result.ok("");
 
@@ -63,7 +59,7 @@ export class IrcMessageSerializer {
 			.replace(/;/g, "\\:");
 	}
 
-	private serializeSource(source?: IrcMessageSource) {
+	private serializeSource(source?: IrcSource) {
 		// https://modern.ircdocs.horse/#source
 		if (!source || source.origin === "client") return Result.ok("");
 		return Result.ok(`:${source.serverName}`);
@@ -72,12 +68,12 @@ export class IrcMessageSerializer {
 	private serializeCommand(command: string) {
 		// https://modern.ircdocs.horse/#command
 		if (!/^[A-Z0-9]+$/.test(command)) {
-			return Result.fail(new IrcMessageSerializerError("Command must be alphanumeric."));
+			return Result.fail(new IrcSerializerError("Command must be alphanumeric."));
 		}
 		return Result.ok(`${command}`);
 	}
 
-	private serializeParameters(parameters?: string[]): Result<string, IrcMessageSerializerError> {
+	private serializeParameters(parameters?: string[]): Result<string, IrcSerializerError> {
 		if (!parameters || !parameters.length) {
 			return Result.ok("");
 		}
@@ -92,21 +88,21 @@ export class IrcMessageSerializer {
 			const parameter = parameters[i];
 			if (parameter.includes(" ")) {
 				return Result.fail(
-					new IrcMessageSerializerError(
+					new IrcSerializerError(
 						`Parameter at index ${i} contains spaces. Only the last parameter can contain spaces.`,
 					),
 				);
 			}
 			if (parameter === "") {
 				return Result.fail(
-					new IrcMessageSerializerError(
+					new IrcSerializerError(
 						`Parameter at index ${i} is empty. Only the last parameter can be empty.`,
 					),
 				);
 			}
 			if (parameter.startsWith(":")) {
 				return Result.fail(
-					new IrcMessageSerializerError(
+					new IrcSerializerError(
 						`Parameter at index ${i} starts with ':'. Only the last parameter can start with ':'.`,
 					),
 				);

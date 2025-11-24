@@ -1,7 +1,7 @@
 import "dotenv/config";
 import { DefaultWebScoketClient } from "@/common/infrastructure/websocket-client/index.js";
-import { IrcMessageParser } from "@/module/chat/application/irc-message-parser/index.js";
-import { IrcMessageSerializer } from "@/module/chat/application/irc-message-serializer/index.js";
+import { IrcParser } from "@/module/chat/application/irc-parser/index.js";
+import { IrcSerializer } from "@/module/chat/application/irc-serializer/index.js";
 
 // biome-ignore-start lint/style/noNonNullAssertion: .env is set
 const TWITCH_WEBSOCKET_URL = process.env.TWITCH_WEBSOCKET_URL!;
@@ -11,8 +11,8 @@ const TWITCH_TOKEN = process.env.TWITCH_TOKEN!;
 const TWITCH_CHANNEL = "jaskol95";
 
 const socket = new DefaultWebScoketClient(TWITCH_WEBSOCKET_URL);
-const parser = new IrcMessageParser();
-const serializer = new IrcMessageSerializer();
+const parser = new IrcParser();
+const serializer = new IrcSerializer();
 
 socket.on("open", () => {
 	console.log("Connecting...");

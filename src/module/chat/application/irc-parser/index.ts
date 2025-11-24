@@ -5,14 +5,14 @@
 
 import { Result } from "@/common/application/result/index.js";
 
-const SEPARATOR_SYMBOL = " ";
-const TAGS_SYMBOL = "@";
-const SOURCE_SYMBOL = ":";
-const TERMINATOR_SYMBOL = "\r\n";
+const IRC_SEPARATOR_SYMBOL = " ";
+const IRC_TAGS_SYMBOL = "@";
+const IRC_SOURCE_SYMBOL = ":";
+const IRC_TERMINATOR_SYMBOL = "\r\n";
 
-export type IrcMessageTags = Map<string, string>;
+export type IrcTags = Map<string, string>;
 
-export type IrcMessageSource =
+export type IrcSource =
 	| {
 			origin: "client";
 			nickname: string;
@@ -22,26 +22,26 @@ export type IrcMessageSource =
 	| { origin: "server"; serverName: string };
 
 export type IrcMessage = {
-	tags?: IrcMessageTags;
-	source?: IrcMessageSource;
+	tags?: IrcTags;
+	source?: IrcSource;
 	command: string;
 	parameters?: string[];
 };
 
-class IrcMessageParserError extends Error {
+class IrcParserError extends Error {
 	constructor(message: string) {
 		super(message);
-		this.name = "IrcMessageParserError";
+		this.name = "IrcParserError";
 	}
 }
 
-export class IrcMessageParser {
+export class IrcParser {
 	private cursorIndex: number = 0;
 
-	parse(data: string): Result<IrcMessage, IrcMessageParserError> {
+	parse(data: string): Result<IrcMessage, IrcParserError> {
 		this.cursorIndex = 0;
 
-		const message = data.replace(TERMINATOR_SYMBOL, "");
+		const message = data.replace(IRC_TERMINATOR_SYMBOL, "");
 
 		const tagsResult = this.parseTags(message);
 		if (!tagsResult.success) return Result.fail(tagsResult.error);
@@ -65,14 +65,14 @@ export class IrcMessageParser {
 
 	private parseTags(data: string) {
 		// https://modern.ircdocs.horse/#tags
-		const haveTags = data.at(this.cursorIndex) === TAGS_SYMBOL;
+		const haveTags = data.at(this.cursorIndex) === IRC_TAGS_SYMBOL;
 
 		if (!haveTags) return Result.ok(undefined);
 
-		const spaceIndex = data.indexOf(SEPARATOR_SYMBOL, this.cursorIndex);
+		const spaceIndex = data.indexOf(IRC_SEPARATOR_SYMBOL, this.cursorIndex);
 		if (spaceIndex === -1) {
 			return Result.fail(
-				new IrcMessageParserError("Tags parsing error: enclosing space character missing."),
+				new IrcParserError("Tags parsing error: enclosing space character missing."),
 			);
 		}
 
@@ -92,7 +92,7 @@ export class IrcMessageParser {
 	private unescapeTagValue(data: string) {
 		// https://ircv3.net/specs/extensions/message-tags.html#escaping-values
 		return data
-			.replace(/\\s/g, SEPARATOR_SYMBOL)
+			.replace(/\\s/g, IRC_SEPARATOR_SYMBOL)
 			.replace(/\\n/g, "\n")
 			.replace(/\\r/g, "\r")
 			.replace(/\\:/g, ";")
@@ -103,14 +103,14 @@ export class IrcMessageParser {
 		// https://modern.ircdocs.horse/#source
 		this.moveCursor(data);
 
-		const haveSource = data.at(this.cursorIndex) === SOURCE_SYMBOL;
+		const haveSource = data.at(this.cursorIndex) === IRC_SOURCE_SYMBOL;
 
 		if (!haveSource) return Result.ok(undefined);
 
-		const spaceIndex = data.indexOf(SEPARATOR_SYMBOL, this.cursorIndex);
+		const spaceIndex = data.indexOf(IRC_SEPARATOR_SYMBOL, this.cursorIndex);
 		if (spaceIndex === -1) {
 			return Result.fail(
-				new IrcMessageParserError("Source parsing error: enclosing space character missing."),
+				new IrcParserError("Source parsing error: enclosing space character missing."),
 			);
 		}
 
@@ -132,7 +132,7 @@ export class IrcMessageParser {
 		// https://modern.ircdocs.horse/#command
 		this.moveCursor(data);
 
-		let spaceIndex = data.indexOf(SEPARATOR_SYMBOL, this.cursorIndex);
+		let spaceIndex = data.indexOf(IRC_SEPARATOR_SYMBOL, this.cursorIndex);
 
 		// no space = message end
 		if (spaceIndex === -1) {
@@ -143,9 +143,7 @@ export class IrcMessageParser {
 		this.cursorIndex = spaceIndex;
 
 		if (!/^[A-Z0-9]+$/.test(command)) {
-			return Result.fail(
-				new IrcMessageParserError("Command parsing error: invalid command format."),
-			);
+			return Result.fail(new IrcParserError("Command parsing error: invalid command format."));
 		}
 
 		return Result.ok(command);
@@ -173,13 +171,15 @@ export class IrcMessageParser {
 
 		if (trailingIndex === -1) {
 			// no " :" = middle parameteres only
-			const middleParams = parametersSection.split(SEPARATOR_SYMBOL).filter((p) => p.length > 0);
+			const middleParams = parametersSection
+				.split(IRC_SEPARATOR_SYMBOL)
+				.filter((p) => p.length > 0);
 			if (middleParams.length > 0) {
 				params.push(...middleParams);
 			}
 		} else {
 			const middleSection = parametersSection.slice(0, trailingIndex);
-			const middleParams = middleSection.split(SEPARATOR_SYMBOL).filter((p) => p.length > 0);
+			const middleParams = middleSection.split(IRC_SEPARATOR_SYMBOL).filter((p) => p.length > 0);
 			params.push(...middleParams);
 			params.push(parametersSection.slice(trailingIndex + 2));
 		}
@@ -187,7 +187,7 @@ export class IrcMessageParser {
 		return Result.ok(params.length > 0 ? params : undefined);
 	}
 
-	private moveCursor(data: string, separator: string = SEPARATOR_SYMBOL) {
+	private moveCursor(data: string, separator: string = IRC_SEPARATOR_SYMBOL) {
 		while (data.at(this.cursorIndex) === separator) {
 			this.cursorIndex++;
 		}
