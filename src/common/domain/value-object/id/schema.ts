@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { ZodValidator } from "@/common/infrastructure/validator/zod.js";
+import { ZodValidator } from "@/common/infrastructure/validator/zod";
 
 const ID_REQUIRED_MESSAGE = "ID is required.";
 const ID_TYPE_MESSAGE = "ID must be a UUID.";

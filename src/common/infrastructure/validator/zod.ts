@@ -1,6 +1,6 @@
 import type { z } from "zod";
-import { Result } from "@/common/application/result/index.js";
-import { type Validator, ValidatorError } from "@/common/application/validator/index.js";
+import { Result } from "@/common/application/result";
+import { type Validator, ValidatorError } from "@/common/application/validator";
 
 export class ZodValidator implements Validator {
 	validate<T>(value: unknown, schema: z.ZodSchema<T>, errorMessage: string = "Validation failed.") {

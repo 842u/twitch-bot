@@ -3,7 +3,7 @@
  * Message tags format: https://ircv3.net/specs/extensions/message-tags.html
  */
 
-import { Result } from "@/common/application/result/index.js";
+import { Result } from "@/common/application/result";
 import {
 	IRC_SEPARATOR_SYMBOL,
 	IRC_SOURCE_SYMBOL,
@@ -12,7 +12,7 @@ import {
 	type IrcMessage,
 	type IrcSource,
 	type IrcTags,
-} from "@/module/chat/application/irc/types.js";
+} from "@/module/chat/application/irc/types";
 
 class IrcSerializerError extends Error {
 	constructor(message: string) {

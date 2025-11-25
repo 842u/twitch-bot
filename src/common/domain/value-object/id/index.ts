@@ -1,6 +1,6 @@
-import { Result } from "@/common/application/result/index.js";
-import { idSchema, idValidator } from "@/common/domain/value-object/id/schema.js";
-import { ValueObject } from "@/common/domain/value-object/index.js";
+import { Result } from "@/common/application/result";
+import { ValueObject } from "@/common/domain/value-object";
+import { idSchema, idValidator } from "@/common/domain/value-object/id/schema";
 
 export class Id extends ValueObject<string> {
 	private constructor(value: string) {

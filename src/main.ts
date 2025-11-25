@@ -1,7 +1,7 @@
 import "dotenv/config";
-import { DefaultWebScoketClient } from "@/common/infrastructure/websocket-client/index.js";
-import { IrcParser } from "@/module/chat/application/irc/parser/index.js";
-import { IrcSerializer } from "@/module/chat/application/irc/serializer/index.js";
+import { DefaultWebScoketClient } from "@/common/infrastructure/websocket-client";
+import { IrcParser } from "@/module/chat/application/irc/parser";
+import { IrcSerializer } from "@/module/chat/application/irc/serializer";
 
 // biome-ignore-start lint/style/noNonNullAssertion: .env is set
 const TWITCH_WEBSOCKET_URL = process.env.TWITCH_WEBSOCKET_URL!;
@@ -89,5 +89,8 @@ socket.on("error", (event) => {
 });
 
 socket.on("close", (event) => {
-	console.log("WebSocket close: ", event.reason);
+	console.log("WebSocket close");
+	console.log(event);
+	console.log(event.code);
+	console.log(event.reason);
 });

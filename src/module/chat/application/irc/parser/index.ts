@@ -3,14 +3,14 @@
  * Message tags format: https://ircv3.net/specs/extensions/message-tags.html
  */
 
-import { Result } from "@/common/application/result/index.js";
+import { Result } from "@/common/application/result";
 import {
 	IRC_SEPARATOR_SYMBOL,
 	IRC_SOURCE_SYMBOL,
 	IRC_TAGS_SYMBOL,
 	IRC_TERMINATOR_SYMBOL,
 	type IrcMessage,
-} from "@/module/chat/application/irc/types.js";
+} from "@/module/chat/application/irc/types";
 
 class IrcParserError extends Error {
 	constructor(message: string) {

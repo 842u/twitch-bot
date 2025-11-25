@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { Result } from "@/common/application/result/index.js";
+import type { Result } from "@/common/application/result";
 
 export const validatorIssueSchema = z.object({
 	path: z.array(z.union([z.string(), z.symbol(), z.number()])),

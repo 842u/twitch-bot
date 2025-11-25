@@ -1,4 +1,4 @@
-import type { Result } from "@/common/application/result/index.js";
+import type { Result } from "@/common/application/result";
 
 export abstract class ValueObject<T> {
 	protected readonly _value: T;

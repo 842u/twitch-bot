@@ -1,4 +1,4 @@
-import type { WebSocketClient } from "@/common/application/websocket-client/index.js";
+import type { WebSocketClient } from "@/common/application/websocket-client";
 
 export class DefaultWebScoketClient implements WebSocketClient {
 	private socket: WebSocket;

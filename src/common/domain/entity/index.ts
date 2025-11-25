@@ -1,5 +1,5 @@
-import type { Result } from "@/common/application/result/index.js";
-import type { Id } from "@/common/domain/value-object/id/index.js";
+import type { Result } from "@/common/application/result";
+import type { Id } from "@/common/domain/value-object/id";
 
 type BaseEntityValue = { id: Id };
 
