@@ -3,7 +3,7 @@ import { Entity } from "@/common/domain/entity";
 import { CommandCooldown } from "@/module/chat/domain/command/value-object/cooldown";
 import { CommandDescription } from "@/module/chat/domain/command/value-object/description";
 import { CommandId } from "@/module/chat/domain/command/value-object/id";
-import { CommandName, type CommandNameError } from "@/module/chat/domain/command/value-object/name";
+import { CommandName } from "@/module/chat/domain/command/value-object/name";
 import { CommandPermission } from "@/module/chat/domain/command/value-object/permission";
 
 type CommandValue = {
@@ -26,40 +26,36 @@ export class Command extends Entity<CommandValue> {
 		permission: string;
 		cooldown: { duration: number; isGlobal: boolean };
 		aliases?: string[];
-		description: string;
+		description?: string;
 	}) {
-		const idResult = CommandId.create(value.id);
-		if (!idResult.success) return Result.fail(idResult.error);
+		const combinedResult = Result.combine([
+			CommandId.create(value.id),
+			CommandName.create(value.name),
+			CommandPermission.create(value.permission),
+			CommandCooldown.create(value.cooldown),
+			value.description ? CommandDescription.create(value.description) : Result.ok(undefined),
+		] as const);
 
-		const nameResult = CommandName.create(value.name);
-		if (!nameResult.success) return Result.fail(nameResult.error);
+		if (!combinedResult.success) return Result.fail(combinedResult.error);
 
-		const permissionResult = CommandPermission.create(value.permission);
-		if (!permissionResult.success) return Result.fail(permissionResult.error);
+		const [id, name, permission, cooldown, description] = combinedResult.data;
 
-		const cooldownResult = CommandCooldown.create(value.cooldown);
-		if (!cooldownResult.success) return Result.fail(cooldownResult.error);
-
-		const aliasesResult: Result<CommandName, CommandNameError>[] = [];
-		value.aliases?.forEach((alias) => {
-			aliasesResult.push(CommandName.create(alias));
-		});
-		const aliasFailResult = aliasesResult.find((alias) => !alias.success);
-		if (aliasFailResult) return Result.fail(aliasFailResult.error);
-		const aliases = aliasesResult
-			.filter((alias) => alias.success)
-			.map((successAlias) => successAlias.data);
-
-		const descriptionResult = CommandDescription.create(value.description);
-		if (!descriptionResult.success) return Result.fail(descriptionResult.error);
+		let aliases: CommandName[] | undefined;
+		if (value.aliases) {
+			const aliasesResult = value.aliases.map((alias) => CommandName.create(alias));
+			const combinedAliases = Result.combine(aliasesResult);
+			if (!combinedAliases.success) return Result.fail(combinedAliases.error);
+			aliases = combinedAliases.data;
+		}
 
 		return Result.ok(
 			new Command({
-				id: idResult.data,
-				name: nameResult.data,
-				permission: permissionResult.data,
-				cooldown: cooldownResult.data,
+				id,
+				name,
+				permission,
+				cooldown,
 				aliases,
+				description,
 			}),
 		);
 	}

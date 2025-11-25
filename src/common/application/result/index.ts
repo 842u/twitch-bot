@@ -89,11 +89,13 @@ export const Result = {
 
 		for (const result of results) {
 			if (!result.success) {
+				// biome-ignore lint/suspicious/noExplicitAny: 0
 				return result as any;
 			}
 			data.push(result.data);
 		}
 
+		// biome-ignore lint/suspicious/noExplicitAny: 0
 		return Result.ok(data) as any;
 	},
 };
