@@ -48,4 +48,24 @@ export class Command extends Entity<CommandValue> {
 			}),
 		);
 	}
+
+	get id() {
+		return this.value.id;
+	}
+
+	get name() {
+		return this.value.name;
+	}
+
+	get permission() {
+		return this.value.permission;
+	}
+
+	get cooldown() {
+		return this.value.cooldown;
+	}
+
+	get description() {
+		return this.value.description;
+	}
 }
