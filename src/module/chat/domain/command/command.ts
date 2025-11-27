@@ -11,8 +11,7 @@ type CommandValue = {
 	name: CommandName;
 	permission: CommandPermission;
 	cooldown: CommandCooldown;
-	aliases?: CommandName[];
-	description?: CommandDescription;
+	description: CommandDescription;
 };
 
 export class Command extends Entity<CommandValue> {
@@ -25,28 +24,19 @@ export class Command extends Entity<CommandValue> {
 		name: string;
 		permission: string;
 		cooldown: { duration: number; isGlobal: boolean };
-		aliases?: string[];
-		description?: string;
+		description: string;
 	}) {
 		const combinedResult = Result.combine([
 			CommandId.create(value.id),
 			CommandName.create(value.name),
 			CommandPermission.create(value.permission),
 			CommandCooldown.create(value.cooldown),
-			value.description ? CommandDescription.create(value.description) : Result.ok(undefined),
+			CommandDescription.create(value.description),
 		] as const);
 
 		if (!combinedResult.success) return Result.fail(combinedResult.error);
 
 		const [id, name, permission, cooldown, description] = combinedResult.data;
-
-		let aliases: CommandName[] | undefined;
-		if (value.aliases) {
-			const aliasesResult = value.aliases.map((alias) => CommandName.create(alias));
-			const combinedAliases = Result.combine(aliasesResult);
-			if (!combinedAliases.success) return Result.fail(combinedAliases.error);
-			aliases = combinedAliases.data;
-		}
 
 		return Result.ok(
 			new Command({
@@ -54,7 +44,6 @@ export class Command extends Entity<CommandValue> {
 				name,
 				permission,
 				cooldown,
-				aliases,
 				description,
 			}),
 		);
