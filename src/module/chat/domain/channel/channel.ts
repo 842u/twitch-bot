@@ -37,4 +37,17 @@ export class Channel extends Entity<ChannelValue> {
 			}),
 		);
 	}
+
+	addCommand(command: Command) {
+		if (
+			this.value.commands.findIndex((existingCommand) => existingCommand.name === command.name) !==
+			-1
+		) {
+			return Result.fail(new Error(`Command "${command.name}" already exists.`));
+		}
+
+		this.value.commands.push(command);
+
+		return Result.ok(`Command "${command.name}" added.`);
+	}
 }
